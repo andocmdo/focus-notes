@@ -11,22 +11,59 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ecf0f1;
+            --bg-tertiary: white;
+            --bg-header: #2c3e50;
+            --bg-tabs: #34495e;
+            --bg-tab: #455a64;
+            --bg-tab-hover: #546e7a;
+            --bg-tab-active: #f5f5f5;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --text-light: #ecf0f1;
+            --border-color: #bdc3c7;
+            --accent-blue: #3498db;
+            --accent-blue-hover: #2980b9;
+        }
+
+        body[data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #252525;
+            --bg-header: #1a1a1a;
+            --bg-tabs: #2d2d2d;
+            --bg-tab: #3a3a3a;
+            --bg-tab-hover: #4a4a4a;
+            --bg-tab-active: #252525;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --text-light: #e0e0e0;
+            --border-color: #404040;
+            --accent-blue: #3498db;
+            --accent-blue-hover: #2980b9;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background: #f5f5f5;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
         }
 
         .header {
-            background: #2c3e50;
+            background: var(--bg-header);
             color: white;
             padding: 8px 12px;
             display: flex;
             align-items: center;
             gap: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.3s;
         }
 
         .header h1 {
@@ -41,7 +78,7 @@
         }
 
         .btn {
-            background: #3498db;
+            background: var(--accent-blue);
             color: white;
             border: none;
             padding: 6px 12px;
@@ -52,29 +89,46 @@
         }
 
         .btn:hover {
-            background: #2980b9;
+            background: var(--accent-blue-hover);
         }
 
         .btn-secondary {
-            background: #7f8c8d;
+            background: var(--text-secondary);
         }
 
         .btn-secondary:hover {
             background: #6c7a7b;
         }
 
+        .theme-toggle {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
         .tabs-container {
-            background: #34495e;
+            background: var(--bg-tabs);
             padding: 4px 8px;
             display: flex;
             gap: 4px;
             overflow-x: auto;
             align-items: center;
+            transition: background 0.3s;
         }
 
         .tab {
-            background: #455a64;
-            color: #ecf0f1;
+            background: var(--bg-tab);
+            color: var(--text-light);
             border: none;
             padding: 6px 12px;
             border-radius: 4px 4px 0 0;
@@ -88,16 +142,16 @@
         }
 
         .tab:hover {
-            background: #546e7a;
+            background: var(--bg-tab-hover);
         }
 
         .tab.active {
-            background: #f5f5f5;
-            color: #2c3e50;
+            background: var(--bg-tab-active);
+            color: var(--text-primary);
         }
 
         .new-tab-btn {
-            background: #3498db;
+            background: var(--accent-blue);
             color: white;
             border: none;
             padding: 6px 12px;
@@ -110,7 +164,7 @@
         }
 
         .new-tab-btn:hover {
-            background: #2980b9;
+            background: var(--accent-blue-hover);
         }
 
         .tab-close {
@@ -130,12 +184,13 @@
         }
 
         .toolbar {
-            background: #ecf0f1;
+            background: var(--bg-secondary);
             padding: 8px 12px;
-            border-bottom: 1px solid #bdc3c7;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            transition: background 0.3s, border-color 0.3s;
         }
 
         .editor-container {
@@ -149,29 +204,32 @@
         textarea {
             flex: 1;
             width: 100%;
-            border: 1px solid #bdc3c7;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 12px;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 14px;
             line-height: 1.6;
             resize: none;
-            background: white;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
         }
 
         textarea:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: var(--accent-blue);
         }
 
         .status-bar {
-            background: #ecf0f1;
+            background: var(--bg-secondary);
             padding: 4px 12px;
             font-size: 12px;
-            color: #7f8c8d;
-            border-top: 1px solid #bdc3c7;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
+            transition: background 0.3s, border-color 0.3s;
         }
 
         .modal {
@@ -192,27 +250,32 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--bg-tertiary);
             padding: 24px;
             border-radius: 8px;
             max-width: 400px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            transition: background 0.3s;
         }
 
         .modal-content h2 {
             margin-bottom: 16px;
             font-size: 18px;
+            color: var(--text-primary);
         }
 
         .modal-content input {
             width: 100%;
             padding: 8px;
-            border: 1px solid #bdc3c7;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
             margin-bottom: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
         }
 
         .template-list {
@@ -224,25 +287,25 @@
         .template-btn {
             text-align: left;
             padding: 12px;
-            background: #ecf0f1;
-            border: 1px solid #bdc3c7;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         .template-btn:hover {
-            background: #d5dbdb;
+            background: var(--bg-tab);
         }
 
         .template-btn strong {
             display: block;
             margin-bottom: 4px;
-            color: #2c3e50;
+            color: var(--text-primary);
         }
 
         .template-btn small {
-            color: #7f8c8d;
+            color: var(--text-secondary);
         }
 
         .auto-save-indicator {
@@ -255,7 +318,7 @@
             align-items: center;
             gap: 6px;
             font-size: 12px;
-            color: #7f8c8d;
+            color: var(--text-secondary);
         }
 
         .save-indicator {
@@ -275,7 +338,7 @@
 
         .save-time {
             font-size: 12px;
-            color: #7f8c8d;
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -283,6 +346,9 @@
     <div class="header">
         <h1>📝 Focus Notes</h1>
         <div class="header-controls">
+            <button class="theme-toggle" onclick="app.toggleTheme()" title="Toggle light/dark mode">
+                <span id="themeIcon">🌙</span>
+            </button>
             <button class="btn btn-secondary" onclick="app.showTemplates()">📋 Templates</button>
             <button class="btn btn-secondary" onclick="app.exportAll()">💾 Export All</button>
         </div>
@@ -530,8 +596,10 @@ When this project is "done," I will have:
             renameTabId: null,
             hasUnsavedChanges: false,
             lastSaveTime: null,
+            theme: 'light',
 
             init() {
+                this.loadTheme();
                 this.loadTabs();
                 this.setupAutoSave();
                 this.setupKeyboardShortcuts();
@@ -815,6 +883,29 @@ When this project is "done," I will have:
                         </div>
                     `).join('')}
                 `;
+            },
+
+            loadTheme() {
+                const saved = localStorage.getItem('focusTheme');
+                this.theme = saved || 'light';
+                this.applyTheme();
+            },
+
+            toggleTheme() {
+                this.theme = this.theme === 'light' ? 'dark' : 'light';
+                this.applyTheme();
+                localStorage.setItem('focusTheme', this.theme);
+            },
+
+            applyTheme() {
+                const icon = document.getElementById('themeIcon');
+                if (this.theme === 'dark') {
+                    document.body.setAttribute('data-theme', 'dark');
+                    icon.textContent = '☀️';
+                } else {
+                    document.body.removeAttribute('data-theme');
+                    icon.textContent = '🌙';
+                }
             }
         };
 
