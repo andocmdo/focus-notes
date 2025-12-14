@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background: #6c7a7b;
+        }
+
+        .tabs-container {
+            background: #34495e;
+            padding: 4px 8px;
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            align-items: center;
+        }
+
+        .tab {
+            background: #455a64;
+            color: #ecf0f1;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .tab:hover {
+            background: #546e7a;
+        }
+
+        .tab.active {
+            background: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        .new-tab-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: background 0.2s;
+            font-weight: 600;
+        }
+
+        .new-tab-btn:hover {
+            background: #2980b9;
+        }
+
+        .tab-close {
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            background: #ecf0f1;
+            padding: 8px 12px;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .editor-container {
+            flex: 1;
+            padding: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            background: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .status-bar {
+            background: #ecf0f1;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #7f8c8d;
+            border-top: 1px solid #bdc3c7;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .template-btn {
+            text-align: left;
+            padding: 12px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .template-btn:hover {
+            background: #d5dbdb;
+        }
+
+        .template-btn strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #2c3e50;
+        }
+
+        .template-btn small {
+            color: #7f8c8d;
+        }
+
+        .auto-save-indicator {
+            color: #27ae60;
+            font-size: 11px;
+        }
+
+        .save-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .save-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .save-indicator.saved {
+            background-color: #27ae60;
+        }
+
+        .save-indicator.unsaved {
+            background-color: #e74c3c;
+        }
+
+        .save-time {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📝 Focus Notes</h1>
+        <div class="header-controls">
+            <button class="btn btn-secondary" onclick="app.showTemplates()">📋 Templates</button>
+            <button class="btn btn-secondary" onclick="app.exportAll()">💾 Export All</button>
+        </div>
+    </div>
+
+    <div class="tabs-container" id="tabsContainer"></div>
+
+    <div class="main-content">
+        <div class="editor-container">
+            <textarea id="editor" placeholder="Start typing... (Auto-saves every 2 seconds)"></textarea>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="statusText">Ready</span>
+        <div class="save-status">
+            <div class="save-indicator saved" id="saveIndicator"></div>
+            <span class="save-time" id="saveTime">Last saved: Never</span>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div class="modal" id="templateModal">
+        <div class="modal-content">
+            <h2>Insert Template</h2>
+            <div class="template-list">
+                <button class="template-btn" onclick="app.insertTemplate('context')">
+                    <strong>Context File</strong>
+                    <small>Project context and working memory</small>
+                </button>
+                <button class="template-btn" onclick="app.insertTemplate('planning')">
+                    <strong>Session Plan</strong>
+                    <small>Pre-work planning and breakdown</small>
+                </button>
+                <button class="template-btn" onclick="app.insertTemplate('progress')">
+                    <strong>Progress Log</strong>
+                    <small>Commits and diff reviews</small>
+                </button>
+                <button class="template-btn" onclick="app.insertTemplate('project')">
+                    <strong>New Project</strong>
+                    <small>Project initialization</small>
+                </button>
+                <button class="template-btn" onclick="app.insertTemplate('checkpoint')">
+                    <strong>Checkpoint Review</strong>
+                    <small>Quick status check</small>
+                </button>
+            </div>
+            <br>
+            <button class="btn btn-secondary" onclick="app.hideTemplates()" style="width: 100%">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div class="modal" id="renameModal">
+        <div class="modal-content">
+            <h2>Rename Tab</h2>
+            <input type="text" id="renameInput" placeholder="Enter new name">
+            <button class="btn" onclick="app.confirmRename()" style="width: 100%; margin-bottom: 8px">Rename</button>
+            <button class="btn btn-secondary" onclick="app.hideRename()" style="width: 100%">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const TEMPLATES = {
+            context: `# Project Context
+
+**Project:** [Name]
+**Started:** ${new Date().toLocaleDateString()}
+**Last Updated:** ${new Date().toLocaleString()}
+
+## Current Goal
+[What are you trying to achieve right now? One clear sentence.]
+
+## Current Status
+[Where are you in the process? What just happened?]
+
+## Working Memory (Max 5 items)
+1. 
+2. 
+3. 
+4. 
+5. 
+
+## Next 1-3 Actions
+- [ ] 
+- [ ] 
+- [ ] 
+
+## Open Questions / Blockers
+- 
+
+## Context Needed When Resuming
+[What do you need to remember when you come back to this?]
+
+---
+## State Dumps (Most Recent First)
+
+### ${new Date().toLocaleString()}
+**What I was doing:** 
+**What I learned:** 
+**Next step:** `,
+
+            planning: `# Session Plan
+
+**Date:** ${new Date().toLocaleString()}
+**Project:** [Name]
+**Estimated Time:** [How long do you have?]
+
+## System Prompt (Answer before starting)
+
+**What am I trying to achieve?**
+[The goal - be specific]
+
+**What do I already know?**
+[Relevant context, previous work, research]
+
+**What constraints do I have?**
+- Time: 
+- Resources: 
+- Scope: 
+
+**What does success look like?**
+[How will I know I'm done? What's the minimum viable outcome?]
+
+## Breakdown
+
+### Main Task
+[Top-level task name]
+
+### Chunks (Each should fit on a sticky note)
+1. **[action_verb_task_name]**
+   - Input needed: 
+   - Output/Done looks like: 
+   - Time estimate: 
+   
+2. **[action_verb_task_name]**
+   - Input needed: 
+   - Output/Done looks like: 
+   - Time estimate: 
+
+## Potential Rabbit Holes (Pre-identified)
+- [ ] [Thing I might get distracted by] - Defer to: [Later/Never]
+
+## Recursion Limit
+Max depth: 2 (If I'm 3 levels deep in subtasks, STOP and reassess)
+
+## Checkpoint Schedule
+- [ ] 30 min - Am I still on track?
+- [ ] 60 min - Should I adjust the plan?`,
+
+            progress: `# Progress Log
+
+**Project:** [Name]
+**Date:** ${new Date().toLocaleDateString()}
+
+---
+
+## Commits (Completed Chunks)
+
+### ${new Date().toLocaleTimeString()} - [one_line_summary]
+**What I did:** 
+**What I learned:** 
+**Changed my thinking about:** 
+
+---
+
+## Diff Review (End of Session)
+
+**Session Goal:** [What I set out to do]
+
+**What I knew at START:**
+- 
+
+**What I know NOW:**
+- 
+
+**What changed from my plan:**
+- 
+
+**Next session should focus on:**
+- `,
+
+            project: `# Project: [NAME]
+
+**Created:** ${new Date().toLocaleDateString()}
+**Status:** 🟡 Planning
+
+---
+
+## One-Line Description
+[What is this project in one sentence?]
+
+## Why This Matters
+[Why are you doing this? What problem does it solve?]
+
+## Success Criteria
+When this project is "done," I will have:
+- [ ] 
+- [ ] 
+
+## Known Constraints
+- **Time:** 
+- **Budget/Resources:** 
+- **Dependencies:** 
+
+## Rough Phases
+- [ ] **Phase 1:** [Name] - [What gets accomplished]
+- [ ] **Phase 2:** [Name] - [What gets accomplished]
+
+## First Next Step
+[What's the very first thing you'll do?]`,
+
+            checkpoint: `# Checkpoint Review
+
+**Time:** ${new Date().toLocaleTimeString()}
+
+## Quick Check (Answer each in one sentence)
+
+**Am I still working on what I planned?**
+[Yes/No - if no, why did I diverge?]
+
+**Is this task on the critical path?**
+[Yes/No - is this essential to the goal?]
+
+**What's my current recursion depth?**
+[0 = main task, 1 = subtask, 2 = sub-subtask, 3+ = DANGER]
+
+**If I stopped right now, would I have something useful?**
+[Yes/No - what would I have?]
+
+**Energy/Focus level:**
+[High/Medium/Low]
+
+## Decision
+- [ ] Continue current task
+- [ ] Adjust course - new focus: [What?]
+- [ ] Take a break
+- [ ] End session`
+        };
+
+        const app = {
+            tabs: [],
+            currentTabId: null,
+            autoSaveTimer: null,
+            renameTabId: null,
+            hasUnsavedChanges: false,
+            lastSaveTime: null,
+
+            init() {
+                this.loadTabs();
+                this.setupAutoSave();
+                this.setupKeyboardShortcuts();
+
+                if (this.tabs.length === 0) {
+                    this.newTab();
+                } else {
+                    // Use last active tab if available, otherwise use first tab
+                    const lastActive = localStorage.getItem('lastActiveTab');
+                    const tabId = (lastActive && this.tabs.find(t => t.id === parseInt(lastActive)))
+                        ? parseInt(lastActive)
+                        : this.tabs[0].id;
+                    this.currentTabId = null; // Clear this to prevent switchTab from saving empty editor
+                    this.switchTab(tabId);
+                }
+
+                this.render();
+            },
+
+            loadTabs() {
+                const saved = localStorage.getItem('focusTabs');
+                if (saved) {
+                    this.tabs = JSON.parse(saved);
+                }
+            },
+
+            saveTabs() {
+                localStorage.setItem('focusTabs', JSON.stringify(this.tabs));
+                if (this.currentTabId) {
+                    localStorage.setItem('lastActiveTab', this.currentTabId);
+                }
+            },
+
+            newTab() {
+                const id = Date.now();
+                const tab = {
+                    id: id,
+                    name: `Note ${this.tabs.length + 1}`,
+                    content: '',
+                    created: new Date().toISOString()
+                };
+                this.tabs.push(tab);
+                this.switchTab(id);
+                this.saveTabs();
+                this.render();
+            },
+
+            switchTab(id) {
+                // Save current tab content
+                if (this.currentTabId) {
+                    const currentTab = this.tabs.find(t => t.id === this.currentTabId);
+                    if (currentTab) {
+                        currentTab.content = document.getElementById('editor').value;
+                    }
+                }
+
+                this.currentTabId = id;
+                const tab = this.tabs.find(t => t.id === id);
+                if (tab) {
+                    document.getElementById('editor').value = tab.content;
+                    this.updateStatus(`Editing: ${tab.name}`);
+                }
+                this.saveTabs();
+                this.hasUnsavedChanges = false;
+                this.lastSaveTime = new Date();
+                this.updateSaveStatus(true);
+                this.render();
+            },
+
+            closeTab(id, event) {
+                event.stopPropagation();
+                if (this.tabs.length === 1) {
+                    alert('Cannot close the last tab');
+                    return;
+                }
+
+                const index = this.tabs.findIndex(t => t.id === id);
+                this.tabs.splice(index, 1);
+
+                if (this.currentTabId === id) {
+                    const newIndex = Math.max(0, index - 1);
+                    this.switchTab(this.tabs[newIndex].id);
+                }
+
+                this.saveTabs();
+                this.render();
+            },
+
+            renameTab(id, event) {
+                event.stopPropagation();
+                this.renameTabId = id;
+                const tab = this.tabs.find(t => t.id === id);
+                document.getElementById('renameInput').value = tab.name;
+                document.getElementById('renameModal').classList.add('active');
+                document.getElementById('renameInput').focus();
+                document.getElementById('renameInput').select();
+            },
+
+            confirmRename() {
+                const newName = document.getElementById('renameInput').value.trim();
+                if (newName) {
+                    const tab = this.tabs.find(t => t.id === this.renameTabId);
+                    if (tab) {
+                        tab.name = newName;
+                        this.saveTabs();
+                        this.render();
+                    }
+                }
+                this.hideRename();
+            },
+
+            hideRename() {
+                document.getElementById('renameModal').classList.remove('active');
+                this.renameTabId = null;
+            },
+
+            showTemplates() {
+                document.getElementById('templateModal').classList.add('active');
+            },
+
+            hideTemplates() {
+                document.getElementById('templateModal').classList.remove('active');
+            },
+
+            insertTemplate(templateName) {
+                const template = TEMPLATES[templateName];
+                if (template) {
+                    const editor = document.getElementById('editor');
+                    const currentTab = this.tabs.find(t => t.id === this.currentTabId);
+
+                    // If tab is empty, replace; otherwise insert
+                    if (editor.value.trim() === '') {
+                        editor.value = template;
+                    } else {
+                        editor.value += '\n\n---\n\n' + template;
+                    }
+
+                    currentTab.content = editor.value;
+                    this.saveTabs();
+                    this.hasUnsavedChanges = false;
+                    this.lastSaveTime = new Date();
+                    this.updateSaveStatus(true);
+                    this.hideTemplates();
+                    editor.focus();
+                }
+            },
+
+            exportAll() {
+                const data = {
+                    exported: new Date().toISOString(),
+                    tabs: this.tabs
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `focus-notes-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this.updateStatus('Exported all tabs');
+            },
+
+            setupAutoSave() {
+                const editor = document.getElementById('editor');
+
+                // Save function to avoid repetition
+                const saveCurrentContent = (showIndicator = true) => {
+                    const currentTab = this.tabs.find(t => t.id === this.currentTabId);
+                    if (currentTab) {
+                        currentTab.content = editor.value;
+                        this.saveTabs();
+                        this.hasUnsavedChanges = false;
+                        this.lastSaveTime = new Date();
+                        this.updateSaveStatus(true);
+                    }
+                };
+
+                // Debounced auto-save on input (2 seconds after last keystroke)
+                editor.addEventListener('input', () => {
+                    this.hasUnsavedChanges = true;
+                    this.updateSaveStatus(false);
+                    clearTimeout(this.autoSaveTimer);
+                    this.autoSaveTimer = setTimeout(() => {
+                        saveCurrentContent();
+                    }, 2000);
+                });
+
+                // Save on blur (when textarea loses focus)
+                editor.addEventListener('blur', () => {
+                    if (this.hasUnsavedChanges) {
+                        clearTimeout(this.autoSaveTimer);
+                        saveCurrentContent();
+                    }
+                });
+
+                // Save before page unload and warn if there are unsaved changes
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.hasUnsavedChanges) {
+                        clearTimeout(this.autoSaveTimer);
+                        saveCurrentContent(false);
+
+                        // Show warning dialog
+                        e.preventDefault();
+                        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                        return e.returnValue;
+                    }
+                });
+
+                // Also use pagehide for better mobile support
+                window.addEventListener('pagehide', () => {
+                    if (this.hasUnsavedChanges) {
+                        clearTimeout(this.autoSaveTimer);
+                        saveCurrentContent(false);
+                    }
+                });
+            },
+
+            updateSaveStatus(saved) {
+                const indicator = document.getElementById('saveIndicator');
+                const timeText = document.getElementById('saveTime');
+
+                if (saved) {
+                    indicator.classList.remove('unsaved');
+                    indicator.classList.add('saved');
+                    if (this.lastSaveTime) {
+                        const timeStr = this.lastSaveTime.toLocaleTimeString();
+                        timeText.textContent = `Last saved: ${timeStr}`;
+                    }
+                } else {
+                    indicator.classList.remove('saved');
+                    indicator.classList.add('unsaved');
+                }
+            },
+
+            showAutoSaved() {
+                const indicator = document.getElementById('autoSaveStatus');
+                indicator.textContent = '✓ Saved';
+                setTimeout(() => {
+                    indicator.textContent = '';
+                }, 2000);
+            },
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl/Cmd + T = New tab
+                    if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                        e.preventDefault();
+                        this.newTab();
+                    }
+                    // Ctrl/Cmd + W = Close tab
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+                        e.preventDefault();
+                        if (this.tabs.length > 1) {
+                            this.closeTab(this.currentTabId, { stopPropagation: () => {} });
+                        }
+                    }
+                });
+
+                // Enter key in rename modal
+                document.getElementById('renameInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.confirmRename();
+                    }
+                });
+            },
+
+            updateStatus(text) {
+                document.getElementById('statusText').textContent = text;
+            },
+
+            render() {
+                const container = document.getElementById('tabsContainer');
+                container.innerHTML = `
+                    <button class="new-tab-btn" onclick="app.newTab()">+ New Tab</button>
+                    ${this.tabs.map(tab => `
+                        <div class="tab ${tab.id === this.currentTabId ? 'active' : ''}"
+                             onclick="app.switchTab(${tab.id})"
+                             ondblclick="app.renameTab(${tab.id}, event)">
+                            <span>${tab.name}</span>
+                            ${this.tabs.length > 1 ? `<span class="tab-close" onclick="app.closeTab(${tab.id}, event)">×</span>` : ''}
+                        </div>
+                    `).join('')}
+                `;
+            }
+        };
+
+        // Initialize app when page loads
+        window.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
