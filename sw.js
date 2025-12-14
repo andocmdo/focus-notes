@@ -1,7 +1,7 @@
 // Service Worker for Focus Notes PWA
 const CACHE_NAME = 'focus-notes-v1';
 const urlsToCache = [
-  './focus-notes.html',
+  './index.html',
   './manifest.json'
 ];
 
